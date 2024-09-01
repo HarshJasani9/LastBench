@@ -14,6 +14,10 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB successfully connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+// Routes
+const studentRoutes = require('./routes/studentRoutes');
+app.use('/api/students', studentRoutes);
+
 // Basic route
 app.get('/', (req, res) => {
   res.send('LastBench API is running...');
