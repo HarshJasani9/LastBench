@@ -1,0 +1,39 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.add-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 250px;
+  cursor: pointer;
+  border: 2px dashed var(--glass-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.add-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent);
+}
+
+.add-icon {
+  font-size: 4rem;
+  color: var(--accent);
+  font-weight: 300;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.add-card:hover .add-icon {
+  transform: scale(1.1) rotate(90deg);
+}
+
+.add-card h3 {
+  color: var(--text-muted);
+  font-weight: 400;
+}
