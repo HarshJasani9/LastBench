@@ -22,9 +22,9 @@
 }
 
 .add-icon {
-  font-size: 4rem;
+  width: 64px;
+  height: 64px;
   color: var(--accent);
-  font-weight: 300;
   margin-bottom: 1rem;
   transition: transform 0.3s ease;
 }
