@@ -10,7 +10,8 @@ const subjectSchema = new mongoose.Schema({
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }, // Simple auth placeholder
+  password: { type: String }, // Optional for OAuth users
+  googleId: { type: String }, // For Google OAuth
   subjects: [subjectSchema],
 }, { timestamps: true });
 

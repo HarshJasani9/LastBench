@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SubjectCard from '../components/SubjectCard';
 import AddSubjectModal from '../components/AddSubjectModal';
 import api from '../api/axios';
@@ -14,32 +15,24 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const initializeUser = async () => {
-      try {
-        let sid = localStorage.getItem('lastbench_student_id');
-        
-        if (!sid) {
-          // Frictionless onboarding: create a default user if none exists locally
-          const res = await api.post('/students', {
-            name: 'Guest Student',
-            email: `guest_${Date.now()}@lastbench.com`,
-            password: 'password123'
-          });
-          sid = res.data._id;
-          localStorage.setItem('lastbench_student_id', sid);
-        }
-        
-        setStudentId(sid);
-        fetchSubjects(sid);
-      } catch (error) {
-        toast.error('Failed to initialize session');
-        setIsLoading(false);
+    const initializeUser = () => {
+      const token = localStorage.getItem('lastbench_token');
+      const sid = localStorage.getItem('lastbench_student_id');
+      
+      if (!token || !sid) {
+        navigate('/auth');
+        return;
       }
+      
+      setStudentId(sid);
+      fetchSubjects(sid);
     };
 
     initializeUser();
-  }, []);
+  }, [navigate]);
 
   const fetchSubjects = async (sid) => {
     try {
@@ -82,6 +75,12 @@ const Dashboard = () => {
     setSubjects(updatedStudentData.subjects);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('lastbench_token');
+    localStorage.removeItem('lastbench_student_id');
+    navigate('/auth');
+  };
+
   if (isLoading) {
     return <div className="app-container"><div style={{textAlign:'center', marginTop:'20vh'}}>Loading...</div></div>;
   }
@@ -89,7 +88,13 @@ const Dashboard = () => {
   return (
     <div className="app-container">
       <Toaster position="top-right" />
-      <header className="header">
+      <header className="header" style={{ position: 'relative' }}>
+        <button 
+          onClick={handleLogout} 
+          style={{ position: 'absolute', right: 0, top: 0, padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.2)', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', cursor: 'pointer', fontFamily: 'Outfit' }}
+        >
+          Logout
+        </button>
         <h1 className="title">LastBench</h1>
         <p className="subtitle">Manage your attendance like a pro.</p>
       </header>
