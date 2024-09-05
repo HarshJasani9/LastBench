@@ -34,7 +34,7 @@
 .auth-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--panel-border);
 }
 
 .auth-divider span {

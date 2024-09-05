@@ -12,12 +12,12 @@
   align-items: center;
   min-height: 250px;
   cursor: pointer;
-  border: 2px dashed var(--glass-border);
-  background: rgba(255, 255, 255, 0.02);
+  border: 2px dashed var(--panel-border);
+  background: var(--bg-main);
 }
 
 .add-card:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--panel-bg);
   border-color: var(--accent);
 }
 

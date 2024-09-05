@@ -53,19 +53,20 @@
 }
 
 .form-group input {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--glass-border);
+  background: #f1f5f9;
+  border: 1px solid var(--panel-border);
   border-radius: 8px;
   padding: 0.8rem 1rem;
-  color: #fff;
+  color: var(--text-main);
   font-family: 'Outfit', sans-serif;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .form-group input:focus {
   border-color: var(--accent);
+  background: #ffffff;
 }
 
 .modal-actions {
@@ -86,12 +87,13 @@
 }
 
 .btn-cancel {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: #f1f5f9;
+  color: var(--text-muted);
 }
 
 .btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #e2e8f0;
+  color: var(--text-main);
 }
 
 .btn-submit {

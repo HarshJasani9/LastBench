@@ -16,12 +16,12 @@
 .card-header h3 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-main);
 }
 
 .criteria {
   font-size: 0.85rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-main);
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   color: var(--text-muted);
@@ -43,7 +43,7 @@
 .stat-value {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-main);
   line-height: 1;
 }
 
@@ -57,7 +57,7 @@
 
 .stat-divider {
   font-size: 2rem;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--panel-border);
   font-weight: 300;
 }
 

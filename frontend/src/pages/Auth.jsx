@@ -31,7 +31,7 @@ const Auth = () => {
       localStorage.setItem('lastbench_student_id', res.data._id);
       localStorage.setItem('lastbench_token', res.data.token);
       toast.success(isLogin ? 'Welcome back!' : 'Account created successfully!');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Authentication failed');
     }
@@ -49,7 +49,7 @@ const Auth = () => {
       localStorage.setItem('lastbench_student_id', res.data._id);
       localStorage.setItem('lastbench_token', res.data.token);
       toast.success('Google login successful!');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       toast.error('Google login failed. Please try again.');
     }
