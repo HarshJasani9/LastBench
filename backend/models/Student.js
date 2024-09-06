@@ -5,6 +5,10 @@ const subjectSchema = new mongoose.Schema({
   attendedClasses: { type: Number, default: 0 },
   totalClasses: { type: Number, default: 0 },
   attendanceCriteria: { type: Number, default: 75 }, // Configurable percentage per subject/student
+  history: [{
+    date: { type: Date, default: Date.now },
+    status: { type: String, enum: ['present', 'absent'] }
+  }]
 });
 
 const studentSchema = new mongoose.Schema({

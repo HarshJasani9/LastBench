@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import TopStats from '../components/TopStats';
 import SubjectCard from '../components/SubjectCard';
 import AddSubjectModal from '../components/AddSubjectModal';
+import SubjectHistoryModal from '../components/SubjectHistoryModal';
 import api from '../api/axios';
 import { gsap } from 'gsap';
 import toast, { Toaster } from 'react-hot-toast';
-import { Plus } from 'lucide-react';
+import { PlusCircle, AlertOctagon, BookX } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -14,6 +17,7 @@ const Dashboard = () => {
   const [studentId, setStudentId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState(null);
 
   const navigate = useNavigate();
 
@@ -46,25 +50,21 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    // Stagger animation for cards when data is loaded
-    if (!isLoading && containerRef.current && subjects.length >= 0) {
-      const cards = containerRef.current.children;
+    if (!isLoading && containerRef.current && subjects.length > 0) {
+      const cards = containerRef.current.querySelectorAll('.subject-card');
       gsap.fromTo(cards, 
-        { y: 50, opacity: 0 }, 
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power3.out' }
+        { y: 30, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: 'power2.out' }
       );
     }
-  }, [isLoading, subjects.length]); // trigger animation when subjects count changes
+  }, [isLoading, subjects.length]);
 
   const handleAddSubject = async (subjectData) => {
     try {
       const res = await api.post(`/students/${studentId}/subjects`, subjectData);
       setSubjects(res.data.subjects);
       toast.success('Subject added successfully!', {
-        style: {
-          background: 'var(--success)',
-          color: '#fff',
-        }
+        style: { background: 'var(--success)', color: '#fff' }
       });
     } catch (error) {
       toast.error('Failed to add subject');
@@ -82,45 +82,78 @@ const Dashboard = () => {
   };
 
   if (isLoading) {
-    return <div className="app-container"><div style={{textAlign:'center', marginTop:'20vh'}}>Loading...</div></div>;
+    return <div className="app-layout"><div style={{textAlign:'center', marginTop:'20vh', width:'100%'}}>Loading...</div></div>;
   }
 
+  // Calculate danger state
+  const subjectsInDanger = subjects.filter(sub => {
+    const p = sub.totalClasses === 0 ? 0 : (sub.attendedClasses / sub.totalClasses) * 100;
+    return sub.totalClasses > 0 && p < sub.attendanceCriteria;
+  });
+
   return (
-    <div className="app-container">
-      <Toaster position="top-right" />
-      <header className="header" style={{ position: 'relative' }}>
-        <button 
-          onClick={handleLogout} 
-          style={{ position: 'absolute', right: 0, top: 0, padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.2)', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', cursor: 'pointer', fontFamily: 'Outfit' }}
-        >
-          Logout
-        </button>
-        <h1 className="title">LastBench</h1>
-        <p className="subtitle">Manage your attendance like a pro.</p>
-      </header>
-
-      <div className="dashboard-grid" ref={containerRef}>
-        {subjects.map((subject) => (
-          <SubjectCard 
-            key={subject._id} 
-            subject={subject} 
-            studentId={studentId}
-            onUpdate={handleSubjectUpdate}
-          />
-        ))}
+    <div className="app-layout">
+      <Sidebar onLogout={handleLogout} />
+      
+      <main className="main-content">
+        <Toaster position="top-right" />
         
-        {/* Add New Subject Card */}
-        <div className="glass-panel add-card" onClick={() => setIsModalOpen(true)}>
-          <Plus className="add-icon" />
-          <h3>Add Subject</h3>
-        </div>
-      </div>
+        <header className="page-header">
+          <h1 className="title">Dashboard</h1>
+          <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+            <PlusCircle size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            Add Subject
+          </button>
+        </header>
 
-      <AddSubjectModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onAdd={handleAddSubject}
-      />
+        {subjectsInDanger.length > 0 && (
+          <div className="danger-banner">
+            <AlertOctagon size={24} />
+            <span>
+              You're in danger in {subjectsInDanger.length} {subjectsInDanger.length === 1 ? 'subject' : 'subjects'} — attend your next class!
+            </span>
+          </div>
+        )}
+
+        {subjects.length > 0 ? (
+          <>
+            <TopStats subjects={subjects} />
+            <h2 className="section-title">Your Subjects</h2>
+            <div className="dashboard-grid" ref={containerRef}>
+              {subjects.map((subject) => (
+                <SubjectCard 
+                  key={subject._id} 
+                  subject={subject} 
+                  studentId={studentId}
+                  onUpdate={handleSubjectUpdate}
+                  onClick={() => setSelectedSubject(subject)}
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="empty-state glass-panel">
+            <BookX size={64} className="empty-icon" />
+            <h2>No subjects yet</h2>
+            <p>Start tracking your attendance by adding your first subject.</p>
+            <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+              Add First Subject
+            </button>
+          </div>
+        )}
+
+        <AddSubjectModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          onAdd={handleAddSubject}
+        />
+
+        <SubjectHistoryModal
+          isOpen={!!selectedSubject}
+          onClose={() => setSelectedSubject(null)}
+          subject={selectedSubject}
+        />
+      </main>
     </div>
   );
 };

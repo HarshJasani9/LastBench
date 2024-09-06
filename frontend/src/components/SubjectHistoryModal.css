@@ -1,0 +1,95 @@
+.history-modal {
+  max-width: 500px;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: var(--text-main);
+}
+
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  background: var(--bg-main);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+}
+
+/* Override react-calendar defaults for our theme */
+.react-calendar {
+  border: none !important;
+  font-family: 'Outfit', sans-serif !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+.react-calendar__navigation button {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.react-calendar__tile {
+  padding: 0.8em 0.5em !important;
+  font-family: 'Outfit', sans-serif;
+  border-radius: 8px;
+}
+
+.react-calendar__tile:disabled {
+  background-color: transparent !important;
+}
+
+.react-calendar__tile--now {
+  background: #e2e8f0 !important;
+}
+
+.react-calendar__tile--active {
+  background: var(--accent) !important;
+  color: white !important;
+}
+
+/* Custom tile classes for history */
+.react-calendar__tile--present {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: var(--success) !important;
+  font-weight: bold;
+}
+
+.react-calendar__tile--absent {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: var(--danger) !important;
+  font-weight: bold;
+}
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}

@@ -1,0 +1,79 @@
+.sidebar {
+  width: 260px;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+}
+
+.sidebar-header {
+  margin-bottom: 2.5rem;
+  padding: 0 1rem;
+}
+
+.sidebar-header .logo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.nav-item:hover {
+  background: #f1f5f9;
+  color: var(--text-main);
+}
+
+.nav-item.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--panel-border);
+  padding-top: 1.5rem;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+}
+
+.btn-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+}

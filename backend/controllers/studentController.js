@@ -47,7 +47,7 @@ const addSubject = async (req, res) => {
 // @route   PUT /api/students/:studentId/subjects/:subjectId
 const updateAttendance = async (req, res) => {
   try {
-    const { attendedClasses, totalClasses } = req.body;
+    const { attendedClasses, totalClasses, status, date } = req.body;
     const student = await Student.findById(req.params.studentId);
     
     if (!student) return res.status(404).json({ message: 'Student not found' });
@@ -57,6 +57,14 @@ const updateAttendance = async (req, res) => {
 
     if (attendedClasses !== undefined) subject.attendedClasses = attendedClasses;
     if (totalClasses !== undefined) subject.totalClasses = totalClasses;
+
+    // Push history record
+    if (status) {
+      subject.history.push({
+        status,
+        date: date || new Date()
+      });
+    }
 
     await student.save();
     
