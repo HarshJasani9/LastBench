@@ -74,4 +74,34 @@ const updateAttendance = async (req, res) => {
   }
 };
 
-module.exports = { createStudent, getStudent, addSubject, updateAttendance };
+// @desc    Update student settings (profile, academic, preferences, semesters)
+// @route   PUT /api/students/:id/settings
+const updateSettings = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+
+    // Update simple fields if provided
+    const updatableFields = ['name', 'email', 'rollNumber', 'college', 'department', 'currentSemester', 'academicYear', 'division', 'defaultThreshold', 'workingDays', 'semesters'];
+    
+    updatableFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        student[field] = req.body[field];
+      }
+    });
+
+    // If updating password
+    if (req.body.password) {
+      const bcrypt = require('bcryptjs');
+      const salt = await bcrypt.genSalt(10);
+      student.password = await bcrypt.hash(req.body.password, salt);
+    }
+
+    await student.save();
+    res.status(200).json(student);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+module.exports = { createStudent, getStudent, addSubject, updateAttendance, updateSettings };
