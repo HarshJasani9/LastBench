@@ -192,7 +192,7 @@ const Settings = () => {
             <div className="settings-grid">
               <div className="form-group-settings">
                 <label>College Name</label>
-                <input type="text" name="college" value={student.college || ''} onChange={handleChange} placeholder="e.g. Charotar University" />
+                <input type="text" name="college" value={student.college || ''} onChange={handleChange} placeholder="e.g. CVM University" />
               </div>
               <div className="form-group-settings">
                 <label>Department / Branch</label>
