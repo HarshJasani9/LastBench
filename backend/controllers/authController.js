@@ -35,3 +35,33 @@ exports.me = async (req, res) => {
     res.json(user);
   } catch (error) { res.status(400).json({ message: error.message }); }
 };
+
+exports.google = async (req, res) => {
+  try {
+    const { email, name, googleId } = req.body;
+    
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    
+    if (user) {
+      // If user exists but doesn't have a googleId, link it
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    } else {
+      // Create a new user if one doesn't exist
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        // Since Google auth doesn't provide a password, we can skip it or hash a random string.
+        // We'll leave it empty since the model allows it, or we can handle it if required.
+      });
+    }
+
+    res.json({ _id: user._id, name: user.name, email: user.email, token: generateToken(user._id) });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
