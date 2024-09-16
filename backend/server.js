@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const app = express();
 
@@ -10,16 +12,16 @@ app.use(cors());
 app.use(express.json());
 
 // Database connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/lastbench')
   .then(() => console.log('MongoDB successfully connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
-const studentRoutes = require('./routes/studentRoutes');
-const authRoutes = require('./routes/authRoutes');
-
-app.use('/api/students', studentRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/semesters', require('./routes/semesterRoutes'));
+app.use('/api/subjects', require('./routes/subjectRoutes'));
+app.use('/api/attendance', require('./routes/attendanceRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {

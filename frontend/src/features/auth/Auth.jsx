@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import api from '../api/axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { gsap } from 'gsap';
 import './Auth.css';

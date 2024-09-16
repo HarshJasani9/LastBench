@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import './SubjectCard.css';
 import { gsap } from 'gsap';
-import api from '../api/axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { Plus, Minus } from 'lucide-react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';

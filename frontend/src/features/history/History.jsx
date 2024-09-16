@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import api from '../api/axios';
+import Sidebar from '../../components/Sidebar';
+import api from '../../api/axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { Check, X, Calendar as CalendarIcon } from 'lucide-react';
 import './History.css';
-import './Dashboard.css';
+import '../dashboard/Dashboard.css';
 
 const History = () => {
   const navigate = useNavigate();
   const [historyItems, setHistoryItems] = useState([]);
+  const [activeSemesterName, setActiveSemesterName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,10 +24,20 @@ const History = () => {
 
       try {
         const res = await api.get(`/students/${sid}`);
-        const subjects = res.data.subjects || [];
+        const student = res.data;
+        const activeSemester = student?.semesters?.find(s => s.isActive);
+        
+        if (activeSemester) {
+          setActiveSemesterName(activeSemester.name);
+        }
+
+        const displayedSubjects = student.subjects.filter(sub => {
+          if (!activeSemester) return true;
+          return sub.semesterId === activeSemester._id;
+        });
         
         let allHistory = [];
-        subjects.forEach(subject => {
+        displayedSubjects.forEach(subject => {
           if (subject.history && subject.history.length > 0) {
             subject.history.forEach(record => {
               allHistory.push({
@@ -66,7 +77,7 @@ const History = () => {
       <main className="main-content">
         <Toaster position="top-right" />
         <header className="page-header">
-          <h1 className="title">Attendance History</h1>
+          <h1 className="title">Attendance History {activeSemesterName ? `(${activeSemesterName})` : ''}</h1>
         </header>
 
         <div className="history-container">

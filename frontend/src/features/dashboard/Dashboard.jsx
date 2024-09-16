@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import TopStats from '../components/TopStats';
-import SubjectCard from '../components/SubjectCard';
-import AddSubjectModal from '../components/AddSubjectModal';
-import SubjectHistoryModal from '../components/SubjectHistoryModal';
-import api from '../api/axios';
+import Sidebar from '../../components/Sidebar';
+import TopStats from './TopStats';
+import SubjectCard from '../subjects/SubjectCard';
+import AddSubjectModal from '../subjects/AddSubjectModal';
+import SubjectHistoryModal from '../subjects/SubjectHistoryModal';
+import api from '../../api/axios';
 import { gsap } from 'gsap';
 import toast, { Toaster } from 'react-hot-toast';
 import { PlusCircle, AlertOctagon, BookX } from 'lucide-react';
@@ -14,6 +14,7 @@ import './Dashboard.css';
 const Dashboard = () => {
   const containerRef = useRef(null);
   const [subjects, setSubjects] = useState([]);
+  const [student, setStudent] = useState(null);
   const [studentId, setStudentId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,6 +42,7 @@ const Dashboard = () => {
   const fetchSubjects = async (sid) => {
     try {
       const res = await api.get(`/students/${sid}`);
+      setStudent(res.data);
       setSubjects(res.data.subjects);
       setIsLoading(false);
     } catch (error) {
@@ -72,6 +74,7 @@ const Dashboard = () => {
   };
 
   const handleSubjectUpdate = (updatedStudentData) => {
+    setStudent(updatedStudentData);
     setSubjects(updatedStudentData.subjects);
   };
 
@@ -85,8 +88,14 @@ const Dashboard = () => {
     return <div className="app-layout"><div style={{textAlign:'center', marginTop:'20vh', width:'100%'}}>Loading...</div></div>;
   }
 
+  const activeSemester = student?.semesters?.find(s => s.isActive);
+  const displayedSubjects = subjects.filter(sub => {
+    if (!activeSemester) return true; // Show all if no semester is created
+    return sub.semesterId === activeSemester._id; // strictly match active semester
+  });
+
   // Calculate danger state
-  const subjectsInDanger = subjects.filter(sub => {
+  const subjectsInDanger = displayedSubjects.filter(sub => {
     const p = sub.totalClasses === 0 ? 0 : (sub.attendedClasses / sub.totalClasses) * 100;
     return sub.totalClasses > 0 && p < sub.attendanceCriteria;
   });
@@ -115,12 +124,12 @@ const Dashboard = () => {
           </div>
         )}
 
-        {subjects.length > 0 ? (
+        {displayedSubjects.length > 0 ? (
           <>
-            <TopStats subjects={subjects} />
-            <h2 className="section-title">Your Subjects</h2>
+            <TopStats subjects={displayedSubjects} />
+            <h2 className="section-title">Your Subjects {activeSemester ? `(${activeSemester.name})` : ''}</h2>
             <div className="dashboard-grid" ref={containerRef}>
-              {subjects.map((subject) => (
+              {displayedSubjects.map((subject) => (
                 <SubjectCard 
                   key={subject._id} 
                   subject={subject} 

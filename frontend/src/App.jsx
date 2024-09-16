@@ -1,12 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Landing from './pages/Landing';
-import Dashboard from './pages/Dashboard';
-import Subjects from './pages/Subjects';
-import History from './pages/History';
-import Settings from './pages/Settings';
-import Auth from './pages/Auth';
-import './App.css'; 
+import Landing from './features/landing/Landing';
+import Dashboard from './features/dashboard/Dashboard';
+import Subjects from './features/subjects/Subjects';
+import History from './features/history/History';
+import Settings from './features/settings/Settings';
+import Auth from './features/auth/Auth';
+import './App.css';  
 
 function App() {
   return (

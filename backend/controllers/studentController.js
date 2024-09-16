@@ -34,7 +34,15 @@ const addSubject = async (req, res) => {
     
     if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    student.subjects.push({ name, attendanceCriteria: attendanceCriteria || 75 });
+    // Find active semester
+    const activeSemester = student.semesters.find(s => s.isActive);
+    const semesterId = activeSemester ? activeSemester._id : null;
+
+    student.subjects.push({ 
+      name, 
+      attendanceCriteria: attendanceCriteria || student.defaultThreshold || 75,
+      semesterId
+    });
     await student.save();
     
     res.status(201).json(student);

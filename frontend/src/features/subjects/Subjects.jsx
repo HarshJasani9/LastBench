@@ -1,17 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import SubjectCard from '../components/SubjectCard';
-import SubjectHistoryModal from '../components/SubjectHistoryModal';
-import api from '../api/axios';
+import Sidebar from '../../components/Sidebar';
+import SubjectCard from './SubjectCard';
+import SubjectHistoryModal from './SubjectHistoryModal';
+import api from '../../api/axios';
 import { gsap } from 'gsap';
 import toast, { Toaster } from 'react-hot-toast';
 import { BookOpen } from 'lucide-react';
-import './Dashboard.css';
+import '../dashboard/Dashboard.css';
 
 const Subjects = () => {
   const containerRef = useRef(null);
   const [subjects, setSubjects] = useState([]);
+  const [student, setStudent] = useState(null);
   const [studentId, setStudentId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSubject, setSelectedSubject] = useState(null);
@@ -38,6 +39,7 @@ const Subjects = () => {
   const fetchSubjects = async (sid) => {
     try {
       const res = await api.get(`/students/${sid}`);
+      setStudent(res.data);
       setSubjects(res.data.subjects);
       setIsLoading(false);
     } catch (error) {
@@ -57,6 +59,7 @@ const Subjects = () => {
   }, [isLoading, subjects.length]);
 
   const handleSubjectUpdate = (updatedStudentData) => {
+    setStudent(updatedStudentData);
     setSubjects(updatedStudentData.subjects);
   };
 
@@ -70,6 +73,12 @@ const Subjects = () => {
     return <div className="app-layout"><div style={{textAlign:'center', marginTop:'20vh', width:'100%'}}>Loading...</div></div>;
   }
 
+  const activeSemester = student?.semesters?.find(s => s.isActive);
+  const displayedSubjects = subjects.filter(sub => {
+    if (!activeSemester) return true;
+    return sub.semesterId === activeSemester._id; 
+  });
+
   return (
     <div className="app-layout">
       <Sidebar onLogout={handleLogout} />
@@ -78,12 +87,12 @@ const Subjects = () => {
         <Toaster position="top-right" />
         
         <header className="page-header">
-          <h1 className="title">My Subjects</h1>
+          <h1 className="title">My Subjects {activeSemester ? `(${activeSemester.name})` : ''}</h1>
         </header>
 
-        {subjects.length > 0 ? (
+        {displayedSubjects.length > 0 ? (
           <div className="dashboard-grid" ref={containerRef}>
-            {subjects.map((subject) => (
+            {displayedSubjects.map((subject) => (
               <SubjectCard 
                 key={subject._id} 
                 subject={subject} 

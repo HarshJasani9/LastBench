@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import api from '../api/axios';
+import Sidebar from '../../components/Sidebar';
+import api from '../../api/axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { PlusCircle, Save } from 'lucide-react';
 import './Settings.css';
+import '../dashboard/Dashboard.css';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const Settings = () => {
   });
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
 
   const allDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -56,6 +58,7 @@ const Settings = () => {
   };
 
   const handleDayToggle = (day) => {
+    if (!isEditing) return;
     const days = [...student.workingDays];
     if (days.includes(day)) {
       setStudent({ ...student, workingDays: days.filter(d => d !== day) });
@@ -70,6 +73,7 @@ const Settings = () => {
       await api.put(`/students/${studentId}/settings`, student);
       toast.success('Settings saved successfully!');
       setIsEditingProfile(false);
+      setIsEditing(false);
     } catch (error) {
       toast.error('Failed to save settings');
     }
@@ -103,7 +107,8 @@ const Settings = () => {
     
     // Save to DB
     try {
-      await api.put(`/students/${studentId}/settings`, { semesters: updatedSems });
+      const res = await api.put(`/students/${studentId}/settings`, { semesters: updatedSems });
+      setStudent(res.data); // Update with DB response to get valid _id
       toast.success('Semester added!');
     } catch(err) {}
   };
@@ -113,9 +118,9 @@ const Settings = () => {
       ...sem,
       isActive: i === index
     }));
-    setStudent({ ...student, semesters: updatedSems });
     try {
-      await api.put(`/students/${studentId}/settings`, { semesters: updatedSems });
+      const res = await api.put(`/students/${studentId}/settings`, { semesters: updatedSems });
+      setStudent(res.data);
       toast.success('Active semester updated!');
     } catch(err) {}
   };
@@ -135,9 +140,15 @@ const Settings = () => {
         <Toaster position="top-right" />
         <header className="page-header">
           <h1 className="title">Settings</h1>
-          <button className="btn-primary" onClick={saveSettings} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <Save size={20} /> Save All Changes
-          </button>
+          {isEditing ? (
+            <button className="btn-primary" onClick={saveSettings} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Save size={20} /> Save All Changes
+            </button>
+          ) : (
+            <button className="btn-primary" onClick={() => setIsEditing(true)} style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'var(--panel-border)', color: 'var(--text-main)', border: '1px solid var(--glass-border)' }}>
+              Edit Settings
+            </button>
+          )}
         </header>
 
         <div className="settings-container">
@@ -173,14 +184,14 @@ const Settings = () => {
             <form className="settings-grid" onSubmit={handlePasswordChange}>
               <div className="form-group-settings">
                 <label>Roll Number</label>
-                <input type="text" name="rollNumber" value={student.rollNumber || ''} onChange={handleChange} placeholder="e.g. 21CE000" />
+                <input type="text" name="rollNumber" value={student.rollNumber || ''} onChange={handleChange} placeholder="e.g. 21CE000" disabled={!isEditing} />
               </div>
               <div className="form-group-settings">
                 <label>New Password</label>
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <input type="password" placeholder="New Password" value={passwordData.new} onChange={(e) => setPasswordData({...passwordData, new: e.target.value})} style={{ flex: 1 }} />
-                  <input type="password" placeholder="Confirm" value={passwordData.confirm} onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})} style={{ flex: 1 }} />
-                  <button type="submit" className="btn-primary btn-small">Update</button>
+                  <input type="password" placeholder="New Password" value={passwordData.new} onChange={(e) => setPasswordData({...passwordData, new: e.target.value})} style={{ flex: 1 }} disabled={!isEditing} />
+                  <input type="password" placeholder="Confirm" value={passwordData.confirm} onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})} style={{ flex: 1 }} disabled={!isEditing} />
+                  {isEditing && <button type="submit" className="btn-primary btn-small">Update</button>}
                 </div>
               </div>
             </form>
@@ -192,25 +203,25 @@ const Settings = () => {
             <div className="settings-grid">
               <div className="form-group-settings">
                 <label>College Name</label>
-                <input type="text" name="college" value={student.college || ''} onChange={handleChange} placeholder="e.g. CVM University" />
+                <input type="text" name="college" value={student.college || ''} onChange={handleChange} placeholder="e.g. CVM University" disabled={!isEditing} />
               </div>
               <div className="form-group-settings">
                 <label>Department / Branch</label>
-                <input type="text" name="department" value={student.department || ''} onChange={handleChange} placeholder="e.g. Computer Engineering" />
+                <input type="text" name="department" value={student.department || ''} onChange={handleChange} placeholder="e.g. Computer Engineering" disabled={!isEditing} />
               </div>
               <div className="form-group-settings">
                 <label>Current Semester</label>
-                <select name="currentSemester" value={student.currentSemester} onChange={handleChange}>
+                <select name="currentSemester" value={student.currentSemester} onChange={handleChange} disabled={!isEditing}>
                   {[1,2,3,4,5,6,7,8].map(sem => <option key={sem} value={`SEM ${sem}`}>SEM {sem}</option>)}
                 </select>
               </div>
               <div className="form-group-settings">
                 <label>Academic Year</label>
-                <input type="text" name="academicYear" value={student.academicYear || ''} onChange={handleChange} placeholder="e.g. 2024-25" />
+                <input type="text" name="academicYear" value={student.academicYear || ''} onChange={handleChange} placeholder="e.g. 2024-25" disabled={!isEditing} />
               </div>
               <div className="form-group-settings">
                 <label>Division</label>
-                <input type="text" name="division" value={student.division || ''} onChange={handleChange} placeholder="e.g. A" />
+                <input type="text" name="division" value={student.division || ''} onChange={handleChange} placeholder="e.g. A" disabled={!isEditing} />
               </div>
             </div>
           </section>
@@ -261,6 +272,7 @@ const Settings = () => {
                   value={student.defaultThreshold} 
                   onChange={handleChange} 
                   className="slider"
+                  disabled={!isEditing}
                 />
                 <span style={{ fontWeight: '800', fontSize: '1.2rem', color: 'var(--accent)' }}>{student.defaultThreshold}%</span>
               </div>
@@ -279,8 +291,9 @@ const Settings = () => {
                       className="day-checkbox" 
                       checked={student.workingDays.includes(day)}
                       onChange={() => handleDayToggle(day)}
+                      disabled={!isEditing}
                     />
-                    <div className="day-label">{day}</div>
+                    <div className={`day-label ${!isEditing ? 'disabled' : ''}`}>{day}</div>
                   </label>
                 ))}
               </div>
