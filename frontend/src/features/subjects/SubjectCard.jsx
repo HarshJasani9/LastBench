@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import './SubjectCard.css';
 import { gsap } from 'gsap';
 import api from '../../api/axios';
@@ -7,116 +7,74 @@ import { Plus, Minus } from 'lucide-react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
-const SubjectCard = ({ subject, studentId, onUpdate, onClick }) => {
+const SubjectCard = ({ bunkStatus, onUpdate, onClick }) => {
   const cardRef = useRef(null);
+  const { subject, present, total, safeToMiss } = bunkStatus;
+  
+  const percentage = total === 0 ? 0 : Math.round((present / total) * 100);
+  const criteria = subject.threshold || 75;
 
-  const { _id, name, attendedClasses, totalClasses, attendanceCriteria } = subject;
-  
-  // Calculate percentage safely
-  const percentage = totalClasses === 0 ? 0 : Math.round((attendedClasses / totalClasses) * 100);
-  
-  // Determine status color
-  let statusColor = 'var(--success)';
-  if (percentage < attendanceCriteria) {
-    statusColor = 'var(--danger)';
-  } else if (percentage === attendanceCriteria || percentage < attendanceCriteria + 5) {
-    statusColor = 'var(--warning)';
+  let ringColor = 'var(--success)';
+  if (total > 0 && percentage < criteria) {
+    ringColor = 'var(--danger)';
+  } else if (safeToMiss <= 0) {
+    ringColor = 'var(--warning)';
   }
 
-  // Calculate bunk stats
-  let bunkText = '';
-  if (totalClasses > 0) {
-    const c = attendanceCriteria / 100;
-    const safe = Math.floor((attendedClasses - c * totalClasses) / c);
-    
-    if (safe > 0) {
-      bunkText = `Safe to bunk ${safe} classes`;
-    } else if (safe === 0 && percentage >= attendanceCriteria) {
-      bunkText = `On track (0 to bunk)`;
-    } else {
-      const needed = Math.ceil((c * totalClasses - attendedClasses) / (1 - c));
-      bunkText = `Need ${needed} more classes`;
-    }
-  } else {
-    bunkText = 'No classes yet';
-  }
-
-  const handleUpdate = async (isAttended, e) => {
-    e.stopPropagation(); // prevent modal open
+  const handleAttendance = async (e, status) => {
+    e.stopPropagation();
     try {
-      const newAttended = isAttended ? attendedClasses + 1 : attendedClasses;
-      const newTotal = totalClasses + 1;
-      const status = isAttended ? 'present' : 'absent';
-
-      const res = await api.put(`/students/${studentId}/subjects/${_id}`, {
-        attendedClasses: newAttended,
-        totalClasses: newTotal,
+      await api.post('/attendance/mark', {
+        subjectId: subject._id,
         status,
         date: new Date()
       });
+      onUpdate();
       
-      onUpdate(res.data);
-      toast.success(isAttended ? 'Class attended!' : 'Class missed.', {
-        style: {
-          background: 'var(--panel-bg)',
-          color: 'var(--text-main)',
-          border: '1px solid var(--panel-border)'
-        }
-      });
+      const el = e.currentTarget;
+      gsap.fromTo(el, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: "back.out(1.7)" });
+      toast.success(`Marked ${status}!`);
     } catch (error) {
       toast.error('Failed to update attendance');
-      console.error(error);
     }
   };
 
   return (
-    <div className="glass-panel subject-card" ref={cardRef}>
-      <div className="clickable-area" onClick={onClick} style={{ cursor: 'pointer' }}>
-        <div className="card-header">
-          <h3>{name}</h3>
-          <span className="criteria">Target: {attendanceCriteria}%</span>
+    <div className="glass-panel subject-card" ref={cardRef} onClick={onClick} style={{ cursor: 'pointer' }}>
+      <div className="card-header">
+        <h3 className="subject-title">{subject.name}</h3>
+        {subject.code && <span className="subject-code">{subject.code}</span>}
+      </div>
+
+      <div className="card-body">
+        <div className="progress-container">
+          <CircularProgressbar
+            value={percentage}
+            text={`${percentage}%`}
+            styles={buildStyles({
+              pathColor: ringColor,
+              textColor: 'var(--text-main)',
+              trailColor: 'var(--glass-border)',
+              textSize: '24px',
+            })}
+          />
         </div>
         
-        <div className="card-body">
-          <div className="progress-ring-container">
-            <CircularProgressbar
-              value={percentage}
-              text={`${percentage}%`}
-              styles={buildStyles({
-                pathColor: statusColor,
-                textColor: 'var(--text-main)',
-                trailColor: 'var(--panel-border)',
-                pathTransitionDuration: 1.5,
-                textSize: '24px'
-              })}
-            />
+        <div className="stats-container">
+          <p>Target: <strong>{criteria}%</strong></p>
+          <p>Attended: <strong>{present}/{total}</strong></p>
+          <div className={`bunk-status ${safeToMiss > 0 ? 'safe' : 'danger'}`}>
+            {safeToMiss > 0 ? `${safeToMiss} bunks available` : 'Cannot bunk next'}
           </div>
-          
-          <div className="stats-col">
-            <div className="stat-box">
-              <span className="stat-value">{attendedClasses}</span>
-              <span className="stat-label">Attended</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-value">{totalClasses}</span>
-              <span className="stat-label">Total</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bunk-status" style={{ color: statusColor, fontWeight: '600', textAlign: 'center', margin: '0.5rem 0' }}>
-          {bunkText}
         </div>
       </div>
 
       <div className="card-actions">
-        <button className="btn-action btn-add" onClick={(e) => handleUpdate(true, e)}>
-          <Plus size={18} style={{ marginRight: '5px', verticalAlign: 'middle' }}/> 
-          Attended
+        <button className="btn-attendance present" onClick={(e) => handleAttendance(e, 'present')}>
+          <Plus size={18} /> Present
         </button>
-        <button className="btn-action btn-miss" onClick={(e) => handleUpdate(false, e)}>
-          <Minus size={18} style={{ marginRight: '5px', verticalAlign: 'middle' }}/> 
-          Missed
+        <button className="btn-attendance absent" onClick={(e) => handleAttendance(e, 'absent')}>
+          <Minus size={18} /> Absent
         </button>
       </div>
     </div>

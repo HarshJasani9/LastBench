@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import api from '../../api/axios';
+import { AuthContext } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { gsap } from 'gsap';
 import './Auth.css';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', rollNumber: '' });
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,8 +30,7 @@ const Auth = () => {
     
     try {
       const res = await api.post(endpoint, formData);
-      localStorage.setItem('lastbench_student_id', res.data._id);
-      localStorage.setItem('lastbench_token', res.data.token);
+      login(res.data.token, res.data);
       toast.success(isLogin ? 'Welcome back!' : 'Account created successfully!');
       navigate('/dashboard');
     } catch (error) {
@@ -46,8 +47,7 @@ const Auth = () => {
         googleId: decoded.sub
       });
 
-      localStorage.setItem('lastbench_student_id', res.data._id);
-      localStorage.setItem('lastbench_token', res.data.token);
+      login(res.data.token, res.data);
       toast.success('Google login successful!');
       navigate('/dashboard');
     } catch (error) {

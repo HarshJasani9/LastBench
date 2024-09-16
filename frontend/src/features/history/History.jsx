@@ -1,70 +1,69 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import api from '../../api/axios';
+import { AuthContext } from '../../context/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import { format } from 'date-fns';
-import { Check, X, Calendar as CalendarIcon } from 'lucide-react';
+import { Check, X, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
 import './History.css';
 import '../dashboard/Dashboard.css';
 
 const History = () => {
   const navigate = useNavigate();
+  const { user, logout } = useContext(AuthContext);
   const [historyItems, setHistoryItems] = useState([]);
   const [activeSemesterName, setActiveSemesterName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      const sid = localStorage.getItem('lastbench_student_id');
-      if (!sid) {
-        navigate('/auth');
-        return;
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    fetchData();
+  }, [user, navigate]);
+
+  const fetchData = async () => {
+    try {
+      // 1. Get active semester name
+      const semRes = await api.get('/semesters');
+      const activeSem = semRes.data.find(s => s.isActive);
+      if (activeSem) {
+        setActiveSemesterName(activeSem.name);
       }
 
+      // 2. Get history
+      const histRes = await api.get('/attendance/history');
+      
+      // 3. Filter history to only include subjects from the active semester
+      const filteredHistory = histRes.data.filter(record => {
+        if (!activeSem) return true;
+        return record.subject && record.subject.semester === activeSem._id;
+      });
+
+      setHistoryItems(filteredHistory);
+      setIsLoading(false);
+    } catch (error) {
+      toast.error('Failed to load history');
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this record?")) {
       try {
-        const res = await api.get(`/students/${sid}`);
-        const student = res.data;
-        const activeSemester = student?.semesters?.find(s => s.isActive);
-        
-        if (activeSemester) {
-          setActiveSemesterName(activeSemester.name);
-        }
-
-        const displayedSubjects = student.subjects.filter(sub => {
-          if (!activeSemester) return true;
-          return sub.semesterId === activeSemester._id;
-        });
-        
-        let allHistory = [];
-        displayedSubjects.forEach(subject => {
-          if (subject.history && subject.history.length > 0) {
-            subject.history.forEach(record => {
-              allHistory.push({
-                ...record,
-                subjectName: subject.name,
-                subjectId: subject._id
-              });
-            });
-          }
-        });
-
-        // Sort by date descending (newest first)
-        allHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-        setHistoryItems(allHistory);
-        setIsLoading(false);
-      } catch (error) {
-        toast.error('Failed to load history');
-        setIsLoading(false);
+        await api.delete(`/attendance/${id}`);
+        setHistoryItems(historyItems.filter(item => item._id !== id));
+        toast.success('Record deleted');
+      } catch (err) {
+        toast.error('Failed to delete record');
       }
-    };
-
-    fetchHistory();
-  }, [navigate]);
+    }
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem('lastbench_token');
-    localStorage.removeItem('lastbench_student_id');
+    logout();
     navigate('/auth');
   };
 
@@ -83,24 +82,32 @@ const History = () => {
         <div className="history-container">
           {historyItems.length > 0 ? (
             <div className="history-timeline">
-              {historyItems.map((item, index) => (
-                <div key={`${item._id}-${index}`} className="timeline-item">
+              {historyItems.map((item) => (
+                <div key={item._id} className="timeline-item">
                   <div className="timeline-left">
                     <div className={`timeline-icon ${item.status}`}>
                       {item.status === 'present' ? <Check size={24} /> : <X size={24} />}
                     </div>
                     <div className="timeline-details">
-                      <h3>{item.subjectName}</h3>
+                      <h3>{item.subject ? item.subject.name : 'Deleted Subject'}</h3>
                       <p>{format(new Date(item.date), 'EEEE, MMMM do, yyyy')}</p>
                     </div>
                   </div>
-                  <div className="timeline-right">
-                    <span className={`timeline-status ${item.status}`}>
-                      {item.status === 'present' ? 'Attended' : 'Missed'}
-                    </span>
-                    <span className="timeline-time">
-                      {format(new Date(item.date), 'h:mm a')}
-                    </span>
+                  <div className="timeline-right" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                      <span className={`timeline-status ${item.status}`}>
+                        {item.status === 'present' ? 'Attended' : 'Missed'}
+                      </span>
+                      <span className="timeline-time">
+                        {format(new Date(item.date), 'h:mm a')}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => handleDelete(item._id)} 
+                      style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', opacity: 0.7 }}
+                    >
+                      <Trash2 size={20} />
+                    </button>
                   </div>
                 </div>
               ))}
