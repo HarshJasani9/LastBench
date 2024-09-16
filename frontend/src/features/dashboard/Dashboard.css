@@ -85,9 +85,20 @@
 @media (max-width: 1024px) {
   .main-content {
     margin-left: 0;
-    padding: 1.5rem;
+    padding: 4.5rem 1.5rem 1.5rem 1.5rem;
   }
-  .sidebar {
-    display: none; /* In a real app, we'd add a hamburger menu */
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .page-header .title {
+    font-size: 1.8rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
   }
 }

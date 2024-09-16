@@ -88,3 +88,18 @@
   font-size: 0.85rem;
   color: var(--text-muted);
 }
+
+@media (max-width: 600px) {
+  .timeline-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .timeline-right {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

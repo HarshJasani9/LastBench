@@ -38,3 +38,14 @@
   color: var(--text-main);
   line-height: 1;
 }
+
+@media (max-width: 600px) {
+  .top-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+  }
+}

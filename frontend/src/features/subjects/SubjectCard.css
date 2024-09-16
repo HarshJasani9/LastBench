@@ -104,3 +104,82 @@
 .btn-miss:hover {
   background: rgba(239, 68, 68, 0.2);
 }
+
+.progress-container {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+  color: var(--text-main);
+}
+
+.bunk-status {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.bunk-status.safe {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.bunk-status.danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+.btn-attendance {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Outfit', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-attendance.present {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.btn-attendance.present:hover {
+  background: rgba(16, 185, 129, 0.2);
+}
+
+.btn-attendance.absent {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.btn-attendance.absent:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+@media (max-width: 600px) {
+  .card-body {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .stats-container {
+    align-items: center;
+  }
+}
