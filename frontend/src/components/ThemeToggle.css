@@ -1,0 +1,27 @@
+.theme-toggle-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  color: var(--text-main);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.theme-toggle-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+[data-theme='dark'] .theme-toggle-fab {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}

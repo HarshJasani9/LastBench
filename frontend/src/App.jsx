@@ -6,11 +6,13 @@ import Subjects from './features/subjects/Subjects';
 import History from './features/history/History';
 import Settings from './features/settings/Settings';
 import Auth from './features/auth/Auth';
+import ThemeToggle from './components/ThemeToggle';
 import './App.css';  
 
 function App() {
   return (
     <Router>
+      <ThemeToggle />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
