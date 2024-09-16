@@ -44,12 +44,6 @@
 ::view-transition-new(root) {
   z-index: 9999;
 }
-[data-theme='dark']::view-transition-old(root) {
-  z-index: 9999;
-}
-[data-theme='dark']::view-transition-new(root) {
-  z-index: 1;
-}
 
 * {
   margin: 0;
