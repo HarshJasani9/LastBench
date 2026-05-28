@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import api from '../../api/axios';
@@ -9,7 +9,8 @@ import { gsap } from 'gsap';
 import './Auth.css';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
+  const [isLogin, setIsLogin] = useState(!location.state?.isSignUp);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', rollNumber: '' });
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);

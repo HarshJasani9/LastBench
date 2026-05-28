@@ -73,7 +73,7 @@ const Landing = () => {
           </div>
           <div className="nav-links">
             <Link to="/auth" className="btn-secondary">Log In</Link>
-            <Link to="/auth" className="btn-primary">Get Started</Link>
+            <Link to="/auth" state={{ isSignUp: true }} className="btn-primary">Get Started</Link>
           </div>
         </div>
       </nav>
@@ -95,7 +95,7 @@ const Landing = () => {
               and visualize your semester effortlessly.
             </p>
             <div className="hero-cta">
-              <Link to="/auth" className="btn-primary btn-large cta-button">
+              <Link to="/auth" state={{ isSignUp: true }} className="btn-primary btn-large cta-button">
                 Start Tracking Free <ArrowRight size={20} className="cta-icon" />
               </Link>
               <p className="cta-subtext">No credit card required. Setup in 30 seconds.</p>
