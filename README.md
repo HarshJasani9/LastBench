@@ -15,7 +15,7 @@
 
 ## 🚀 Overview
 
-**LastBench** is a hyper-modern, scalable MERN-stack SaaS application designed by students, for students. It takes the stress out of managing attendance by providing an intelligent dashboard that calculates exactly how many classes you can afford to skip ("bunk") without dropping below your target percentage.
+**LastBench** tracks your attendance across all your subjects and tells you in real time how many classes you can still skip while staying above 75%. No more mental math before deciding whether to show up on a Monday morning.
 
 Featuring a completely bespoke, responsive UI built with **Glassmorphism**, **GSAP micro-animations**, and the bleeding-edge **View Transition API** for a seamless dark/light mode wave-ripple toggle.
 
